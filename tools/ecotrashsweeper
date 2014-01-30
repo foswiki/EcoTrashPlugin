@@ -1,0 +1,60 @@
+#!/usr/bin/perl -wT
+#
+# Script for Foswiki Enterprise Collaboration Platform, http://foswiki.org/
+#
+# Copyright (C) 2014 Timothe Litt litt [at] acm.org
+# Copyright (C) 2013 Wave Systems Corp.
+# Copyright (C) 2013 Peter Thoeny, peter[at]thoeny.org
+# Copyright (C) 2013 TWiki Contributors
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version. For
+# more details read LICENSE in the root of this distribution.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details, published at
+# http://www.gnu.org/copyleft/gpl.html
+#
+# As per the GPL, removal of this notice is prohibited.
+#
+# Add the Foswiki bin dir to the search path for this script, so it
+# can find the rest of Fosiki, such as:
+# perl -I /var/www/foswiki/bin /var/www/foswiki/tools/ecotrashsweeper
+
+use strict;
+use warnings;
+
+use Carp;
+
+BEGIN {
+    $SIG{__DIE__}        = \&Carp::confess;
+    $ENV{FOSWIKI_ACTION} = 'ecotrashsweeper';
+    @INC = ( '.', grep { $_ ne '.' } @INC );
+    require 'setlib.cfg';
+
+    # V5+
+    $Foswiki::cfg{Engine} = 'Foswiki::Engine::CLI';
+    $Foswiki::cfg{SwitchBoard} ||= {};
+    $Foswiki::cfg{SwitchBoard}{ecotrashsweeper} = [
+        'Foswiki::Plugins::EcoTrashPlugin', 'ecotrashSweeper',
+        { ecotrashsweeper => 1 }
+    ];
+}
+use Foswiki();
+use Foswiki::UI();
+
+if ( $Foswiki::RELEASE !~ /^TWiki-4\./ ) {
+
+    # V5+
+    no warnings 'once';
+    $Foswiki::engine->run();    # Never returns
+    exit;
+}
+
+die "TWiki stub does not exist on Foswiki\n";
+
+# EOF

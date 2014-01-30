@@ -1,0 +1,301 @@
+%META:TOPICINFO{author="ProjectContributor" date="1390792588" format="1.1" version="$Rev$"}%
+<!-- Copyright 2014 TImothe Litt.  See EcoTrashPlugin for license -->
+---+!! !EcoTrashPlugin
+
+Without this plugin, %WIKITOOLNAME% is, in some environments, an ecological disaster. 
+With it, %WIKITOOLNAME% is ecologically correct. (If only it had been a !SuperFund site...I'd be rich.)
+
+%TOC%
+
+---++ Background
+%WIKITOOLNAME% deletes files and attachments by moving them to the %TRASHWEB% web. %WIKITOOLNAME% does not provide
+a mechanism to expunge deleted files from the %TRASHWEB% web.
+
+This works well for environments where infinite history is desired.
+
+However, this is a problem in several environments:
+   * Where policy requires history to be limited
+   * Where for users are concerned that a  mistakenly-attached file (perhaps \
+with embarrassing content) may be retained forever
+   * Where disk space isn't an infinite resource
+
+Traditionally, %WIKITOOLNAME% specifies that management of the %TRASHWEB% web requires 
+command line or FTP access. This is not always possible and is error-prone.  The past advice 
+was to delete and rebuild the entire %TRASHWEB% web, but various policy condsideration led to 
+manual methods that left the %TRASHWEB% in inconsistent states.
+
+---++ Features
+!EcoTrashPlugin provides a means to manage the %TRASHWEB% web.  It allows you to expunge 
+(permanently delete) topics and attachments from the%TRASHWEB% web.
+
+%ICON{warning}% expunging items is irreversible (at least, without recourse to system 
+backup tapes).  Please be sure that this is what you want to do.
+
+The [[%TRASHWEB%.WebTrashManager][TrashManager]] topic, distributed with this plugin, provides a 
+graphical interface to the %TRASHWEB% web's contents.  
+
+The =tools/ecotrashsweeper= script provides a periodic maintenance function for the %TRASHWEB% web, 
+which can also be invoked from the graphical interface.
+
+---++ Documentation
+%TWISTY{mode="div" showlink="Developer documentation" hidelink="Hide developer documentation" 
+showimgleft="%ICONURLPATH{toggleopen-small}%" hideimgleft="%ICONURLPATH{toggleclose-small}%"}%
+<!-- Note: TOC entries suppressed because when TWISTY is closed, browsers become confused -->
+---++!! Syntax Rules
+ This documentation is for developers.
+
+!EcoTrashPlugin itself provides supporting functions for the graphical interface. It is not intended 
+for use in other topics, and may be changed without regard to compatibility with unauthorized applications.
+
+---+++!! Configuration functions
+!%TRASH{"minage"}% Returns the minimum age parameter (required retention) from configure.
+
+!%TRASH{"maxage"}% Returns the maximum age parameter (maximum retention) from configure.
+
+!%TRASH{"expiretime"}% Returns the time (serial) when files expire (now - maxage).
+
+!%TRASH{"expiredate"}% Returns the date (string) when files expire (now - maxage).
+
+!%TRASH{"group"}% Returns the user group authorized to use the interface by configure.
+
+!%TRASH{"protected"}% Returns the list of %TRASHWEB% web topics that are protected from deletion.
+
+!%TRASH{"attachtopic"}% Returns the name of the topic that holds deleted attachments from configure.
+
+!%TRASH{"icon"}% Returns an image tag for the application icon. 
+
+---+++!! Topic utilities
+ !%TRASH{"topicmove" options}%
+---++++!! Options
+ Options are specified in the usual format -- each option is of the form =name="value"=, where the quotes 
+are required. multiple options are separated by spaces. These accept several parameters:
+   * =topic= - Topic to format
+   * =format= -  may contain the following special tokens in addition to the standard %SYSTEMWEB%.FormatTokens: 
+      * $name - Topic name
+      * $rev - Version
+      * $date - Date last modified (serial)
+      * $fdate - Date last modified formatted for display
+      * $user - User who last modified
+      * $from - Moved from !Web.Topic
+         * $ftopic - !Web.Topic
+         * $fname - !Web.Topic
+      * $to - Moved to !Web.Topic
+         * $ttopic - !Web.Topic
+         * $tname - !Web.Topic
+         * $tpath -path from %TRASHWEB%
+      * $mdate - Date of move (serial)
+      * $fmdate - Date of move formatted for display
+      * $mname - Name of user who moved
+      * $restore - Link to restore topic
+      * $comment - Comment associated with attachment
+
+---+++!! Attachment lists
+ !%TRASH{"listattachments" options...}%
+
+!%TRASH{"listunclaimed" options...}%
+
+---++++!! Options
+ Options are specified in the usual format -- each option is of the form =name="value"=, where the quotes 
+are required. multiple options are separated by spaces. These accept several parameters:
+   * =format= -  may contain the following special tokens in addition to the standard %SYSTEMWEB%.FormatTokens: 
+      * $name - Filename
+      * $rev - Version
+      * $path - Path supplied at attach
+      * $size - File size
+      * $date - Date last modified (serial)
+      * $fdate - Date last modified formatted for display
+      * $user - User who last modified
+      * $attr - Attributes
+      * $from - Moved from !Web.Topic.filename 
+         * $ftopic - !Web.Topic
+         * $fname - filename
+      * $to - Moved to !Web.Topic.filename 
+         * $ttopic - !Web.Topic
+         * $tname - filename
+         * $tpath -path from %TRASHWEB%
+      * $mdate - Date of move (serial)
+      * $fmdate - Date of move formatted for display
+      * $mname - Name of user who moved
+      * $restore - Link to restore attachment
+      * $comment - Comment associated with attachment
+   * =none=  - specifies a string to be produced if no items are found.  The standard format tokens may be used.
+   * =header= - specifies a string to be produced if at least one item is found.  The standard format tokens may be used.
+   * =footer= - specifies a string to be produced if at least one item is found.  The standard format tokens may be used.
+
+Note that date/time values are provided as time serial (integer) values or as a date string formatted according to the system-wide ={DefaultDateFormat}=
+and ={DisplayTimeValues}= configuration parameters.  To obtain the time, use !%CALC%'s $FORMATTIME on the integer.
+---++!! !TrashManager GUI
+The GUI topic does some handstands to minimize the chance of it being treated as an editable topic.  
+If you're a maintainer, and you really know what you're doing, click the trashcan icon to access the usual topic editing tools.
+%ENDTWISTY%
+---++ !EcoTrashSweeper
+The =tools/ecotrashsweeper= script performs automatic maintenance of the %TRASHWEB% web.  It should be run by =cron= 
+under the webserver user.
+
+The script:
+   * Locates any =pub/%TRASHWEB%= directories that don't correspond to a %TRASHWEB% topic. (This can occur \
+due to previous manual management or system failure.)  Empty directories are expunged.  Otherwise, the \
+corresponding topic is created and the files found in =pub/%TRASHWEB% are attached to it.
+   * Removes any metadata for attachments that were deleted without updating it. 
+   * Expunges any deleted attachments or topics that are older than ={Plugins}{EcoTrashPlugin}{MaximumAge}= days.  \
+This is measured from the deletion time of the item, or if none is recorded, from the last change time of the file. \
+This function can be disabled by setting ={Plugins}{EcoTrashPlugin}{MaximumAge}= to zero (the default).
+
+Switches (you *must* specify !=1 for the switch to take effect):
+   * =-q=1= - When specified, the script is silent.  By default, it reports every action.
+   * =-t=1= - When specified, the script runs normally, except that it does not delete anything.  This should \
+be used to verify that the script is configured correctly.
+
+Note that the script deletes directory trees directory trees under the %TRASHWEB% web.  If misconfigured, it \
+can do a great deal of damage.  A trial run with -t=1 is *strongly* recommended.
+
+The same functions are available from the graphical interface, which is a good way to do a trial run.
+
+---++ Issues
+   * Subwebs may not work properly due to the limitations of the FILEATTACHMENT metadata.
+   * Only the RCS database format is supported, because the storage API doesn't provide the necessary functions.
+   * The !WatchlistPlugin is not informed of the final deletion of a topic. However, since links are not usually \
+updated when a topic is deleted, this doesn't seem worth doing.
+   * The management page will misbehave ungracefully if the plugins listed as dependencies (below) are not satisfied.
+
+---++ Plugin Settings
+
+There are no user settings (%WIKITOOLNAME% preferences) for this plugin.
+
+See the !EcoTrashPlugin parameters in the *Extensions* section of the [[%SCRIPTURL%/configure%SCRIPTSUFFIX%][configure]] \
+script for the system configuration settings.
+
+---++ Installation and Configuration
+
+__Note:__ You do not need to install anything on the browser to use this plugin. The following instructions are for 
+the administrator who installs the plugin on the %WIKITOOLNAME% server. 
+%TWISTY{mode="div" showlink="Installation instructions" hidelink="Hide installation instructions" 
+showimgleft="%ICONURLPATH{toggleopen-small}%" hideimgleft="%ICONURLPATH{toggleclose-small}%"}%
+
+__1. Plugin installation__
+
+There are three methods available for installing this plugin.:
+   * Use the [[%SCRIPTURL%/configure%SCRIPTSUFFIX%][configure]] script's extension manager.
+      * Simplest, but your webserver must have write access to the %WIKITOOLNAME% code.
+   * Run the installation script manually
+      * Automated, works in most environments
+   * Do a manual installation
+      * If you don't trust automation, or have an unusual environment
+%ICON{"tip"}% No matter which method you choose, if you run selinux you will probably have to correct
+security context assignments for the new files and/or any intermediate directories.
+%JQTABPANE%
+%JQTAB{"Using Configure"}%
+   * Click on this link: [[%SCRIPTURL%/configure%SCRIPTSUFFIX%][configure]]
+   * Click on *Extensions*, *Find more extensions*
+   * Locate <noautolink> *%TOPIC%* </noautolink>
+   * Click on the link and follow the directions
+%JQENDTAB%
+%JQTAB{"Runing the installation script manually"}%<noautolink>
+   * From your %WIKITOOLNAME% root directory:
+      * Download the =%TOPIC%_installer= script and the %TOPIC%.md5 file from the Plugin Home (see below)
+      * Verify that the files were downloaded correctly: =md5sum -c %TOPIC%.md5=
+      * Run the installer: =perl %TOPIC%_installer= </noautolink>*
+%JQENDTAB%
+%JQTAB{"Manual installation"}%<noautolink>
+   * Install the prerequisite plugins.  Be sure that they are at or above the minimum requred revisions.
+   * Download the =%TOPIC%.zip= or =%TOPIC%.tar.gz= and =%TOPIC%.md5= files from the Plugin Home (see below)
+   * Verify that the files were downloaded correctly: =md5sum -c %TOPIC%.md5=
+   * Expand the file that you selected in your <noautolink>%WIKITOOLNAME%</noautolink> installation directory. Content:
+   * Correct file ownership, permissions, (and selinux contexts) for your environment.
+   * %ICON{"tip"}%: by default, the =tar= and =unzip= commands will set the permissions of each directory to \
+those in the archive.  This can disrupt your wiki.  This can be avoided by explicitly extracting each of the files.</noautolink>*
+%$MANIFEST%
+%JQENDTAB%
+%JQENDTABPANE%
+If your [[%TRASHWEB%.WebHome][%TRASHWEB%.WebHome]] does not include the text ="WebTrashManager section="WebHomeText"= (is older than version 26956), replace it with %TRASHWEB%.WebHomeEcoTrashPlugin:
+   * Rename [[%TRASHWEB%.WebHome][%TRASHWEB%.WebHome]] to <nop>%TRASHWEB%WebHome.old
+   * Rename [[%TRASHWEB%.WebHomeEcoTrashPlugin][%TRASHWEB%.WebHomeEcoTrashPlugin]] to <noautolink>%TRASHWEB%.WebHome
+   * You can expunge %TRASHWEB%WebHome.old</noautolink> with [[%TRASHWEB%.WebTrashManager][Trash Manager]]
+Otherwise, you can expunge %TRASHWEB%.WebHomeEcoTrashPlugin.
+
+__2. Plugin configuration and testing__
+
+   * Run the [[%SCRIPTURL%/configure%SCRIPTSUFFIX%][configure]] script to configure the plugin.
+      * Ensure that the bin/rest script is enabled and configured for authentication. (This is part of a normal %WIKITOOLNAME% installation.)
+      * Check the additional settings in the *Extensions* section, and change if the defaults are not suitable for your installation.
+         * ={Plugins}{EcoTrashPlugin}{AdminGroup}= - Administrator group
+         * ={Plugins}{EcoTrashPlugin}{MinimumAge}= - Minimum retention period
+         * ={Plugins}{EcoTrashPlugin}{MaximumAge}= - Maximum retention period
+         * Check the ={Plugins}{EcoTrashPlugin}{Enabled}= box, in the =Plugins= section.
+   * Optional: Configure your webserver to allow access to items in the %TRASHWEB% by your administrator(s).  \
+This is normally prohibited for all users to prevent abuse, but it may be useful to an administrator who is \
+reviewing %TRASHWEB% contents..
+   * Visit the [[%TRASHWEB%.WebTrashManager][TrashManager]] topic and verify that the plugin is active.  %ICON{"tip"}%If you have items in \
+%TRASHWEB% but the presentation looks wrong, you probably have a old version of  [[http://foswiki.org/Extensions/SpreadSheetPlugin][SpreadSheetPlugin]].  Please upgrade it.
+__3.  Set up and test the maintenance function__
+
+We recommend that you install a =crontab= entry (or equivalent) for =tools/ecotrashsweeper= to run \
+under the webserver user.  This will enable automatic maintenance of the %TRASHWEB% web. 
+
+Because the script deletes files and directories, it is important to verify that it is configured \
+correctly.  We *strongly* recommend running it initially with the =-t=1= option to verify that it \
+is accessing the expected directories.  This will do everything except the actual deletions.  \
+(It will produce messages indicating that deletions happen - but they don't.)
+
+You can test the script from the [[%TRASHWEB%.WebTrashManager][TrashManager]] topic by clicking *Test mode* and \
+*Perform Maintenance Now*.  This will perform the exact actions that the maintenance script will \
+with =-t=1=, displaying the results in your browser.  
+
+%ICON{"tip"}% If you prefer not to set up a =cron= job, you can run the maintenance function from the \
+[[%TRASHWEB%.WebTrashManager][TrashManager]] topic.  __If you elect that option, you can skip the rest of this section.__
+
+For a manual test run from the command line (on unix), use:
+
+<verbatim>
+(cd /var/www/foswiki; nice sudo -u *apache* perl -T -I bin tools/ecotrashsweeper -t=1)
+</verbatim>
+
+Replace **apache** with the user under which the %WIKITOOLNAME% webserver runs on your system.  
+It is important to use the webserver user so that updated files will have the correct permissions.
+
+Once you are comfortable that the script is accessing the correct directories, you should 
+set up a =crontab= entry for the webserver user.
+
+A typical =crontab= entry looks like: 
+
+<verbatim>
+23 00 * * * (cd /var/www/foswiki; nice perl  -T -I bin tools/ecotrashsweeper -q=1)
+</verbatim>
+
+By default, the script will report every action.  To suppress this, use the =-q=1= switch.
+
+For a log, use:
+
+<verbatim>
+23 00 * * * (cd /var/www/foswiki; nice perl  -T -I bin tools/ecotrashsweeper >>/var/www/foswiki/data/ecotrashsweeper.log)
+</verbatim>
+
+A somewhat simpler (equivalent) command structure on systems where perl scripts can be executed directly is:
+
+<verbatim>
+(cd /var/www/foswiki/bin; nice ../tools/ecotrashsweeper -q=1)
+</verbatim>
+%ENDTWISTY%
+
+---++ Plugin Info
+
+| Plugin Author: | Foswiki:Main.TimotheLitt |
+| Copyright: | &copy; 2014, Foswiki:Main.TimotheLitt |
+| License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
+| Plugin Version: | 2014-01-29 (V1.002) |
+| Change History: | <!-- versions below in reverse order --> |
+| 2014-01-29 | Port to Foswiki from TWiki V1.002 |
+| 2014-01-29 | Use system date display formats, handle disabled plugin more gracefully. |
+| 2014-01-28 | Change minage handling to be more prominent |
+| 2014-01-27 | Work-around issue with newer !JQueryPlugin, fix !Webhome, !TWiki version, and plugin disabled issues |
+| 2014-01-26 | More cleanup, incorporate feedback |
+| 2014-01-21 | General cleanup, add deferred features |
+| 2014-01-19 | Technology preview |
+| Dependencies | %$DEPENDENCIES% |
+| Perl Version: | 5.008 |
+| Plugin Home: | http://foswiki.org/Extensions/%TOPIC% |
+| Feedback: | http://foswiki.org/Extensions/%TOPIC%Dev |
+
+__Related Topics:__ [[%SYSTEMWEB%.Plugins][Plugins]], %TWIKIWEB%.DeveloperDocumentationCategory, %TWIKIWEB%.AdminDocumentationCategory
+
+-- Main.TimotheLitt - 21Jan 2014

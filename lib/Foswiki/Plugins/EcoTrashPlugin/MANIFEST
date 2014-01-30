@@ -1,0 +1,20 @@
+# Release manifest for EcoTrashPlugin
+
+data/Trash/WebTrashManager.txt 0644 User interface
+data/Trash/WebHomeEcoTrashPlugin.txt 0644 Updated home topic for Trash web (Foswiki rev below 17257)
+
+data/System/EcoTrashPlugin.txt 0664 Documentation
+data/System/EcoTrashPlugin.txt 0644 Documentation
+
+lib/Foswiki/Plugins/EcoTrashPlugin.pm  0444 Perl module 
+lib/Foswiki/Plugins/EcoTrashPlugin/Core.pm 0444 Perl module
+lib/Foswiki/Plugins/EcoTrashPlugin/Config.spec 0444 Configuration data
+
+templates/restoreattachment.tmpl 0444 Restore attachment template
+
+tools/ecotrashsweeper 0544 Perl script
+
+#lib/Foswiki/Plugins/EcoTrashPlugin/MANIFEST 
+#lib/Foswiki/Plugins/EcoTrashPlugin/DEPENDENCIES
+#lib/Foswiki/Plugins/EcoTrashPlugin/build.pl
+

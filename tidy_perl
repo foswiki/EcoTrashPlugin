@@ -1,0 +1,7 @@
+#!/bin/bash
+DIR="`dirname $0`"
+PWD=`pwd`
+DIR="`echo $DIR | sed -e\"s,^./*,$PWD/,\" -e's,/$,,'`"
+cd $DIR/lib/Foswiki/Plugins/EcoTrashPlugin && perl build.pl tidy && \
+cd $DIR && find tools lib -exec ls -l --color {} \+
+

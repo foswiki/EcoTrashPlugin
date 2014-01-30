@@ -1,0 +1,18 @@
+#!/bin/bash
+RESULTS="EcoTrashPlugin_installer EcoTrashPlugin.txt EcoTrashPlugin.tgz EcoTrashPlugin.zip EcoTrashPlugin.md5"
+#MOVETO="/mnt/wikiworld/home/litt/wikisvn/foswiki/trunk/core"
+MOVEUSER="apache.apache"
+DIR="`dirname $0`"
+PWD=`pwd`
+DIR="`echo $DIR | sed -e\"s,^./*,$PWD/,\" -e's,/$,,'`"
+
+#cd $DIR && perl ../core/tools/fixtopicmeta data/*/*.txt && \
+cd $DIR && \
+cd $DIR/lib/Foswiki/Plugins/EcoTrashPlugin && \
+    chown -R apache.apache . && perl build.pl release && \
+    echo && cd $DIR && pwd && chown $MOVEUSER $RESULTS && ls -l --color $RESULTS && \
+    [ -n "$MOVETO" ] && cp $RESULTS $MOVETO && \
+echo "Copied to $MOVETO
+md5sum -c EcoTrashPlugin.md5
+perl EcoTrashPlugin_installer"
+

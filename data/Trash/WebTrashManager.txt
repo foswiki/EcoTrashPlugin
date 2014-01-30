@@ -1,0 +1,160 @@
+%META:TOPICINFO{author="ProjectContributor" date="1390792588" format="1.1" version="$Rev$"}%
+<!-- Copyright 2014 TImothe Litt.  See EcoTrashPlugin for license -->
+%IF{"context EcoTrashPluginEnabled" then="<div>" else="
+---+ %TRASHWEB% Manager
+$percntRED$percntTo view this topic, the $percntSYSTEMWEB$percnt.EcoTrashPlugin must be enabled with the [[$percntSCRIPTURL{configure}$percnt][configure script]].$percntENDCOLOR$percnt<div style=\"display:none;\">"}%
+---+ <span onclick='$("div.patternTopicActions,div#twTopBarButtons").toggle();$("div.twTopMenuTab").find("ul li a").filter(function(){return $(this).text().indexOf("Edit")==0}).toggle().end().end().find("ul li ul li a").filter(function(){var t=$(this); return t.text().indexOf("History")==0 || t.text().indexOf("More topic actions")==0 || t.text().indexOf("Raw View")==0}).toggle();;'>%TRASH{"icon"}%</span>  %TRASHWEB% Manager
+<!--This topic is not intended for user customization.  It does not fare well in the WYSIWYG editor. -->
+<sticky><form action="%SCRIPTURLPATH{rest}%/EcoTrashPlugin/Recycle" method="post" enctype="multipart/form-data">
+<input type="hidden" name="mgr_topic" value="%WEB%.%TOPIC%">
+<span class="ecoTrashInstructions">%TWISTY{mode="div" class="ecoTrashInstructions" showlink="Instructions and Settings" hidelink="Hide instructions and Settings" showimgleft="%ICONURLPATH{toggleopen-small}%" hideimgleft="%ICONURLPATH{toggleclose-small}%"}%
+</sticky>This topic shows the current contents of the %TRASHWEB% Web and allows administrators to manage it.<br />
+Topics and attachments that have been deleted were moved to the %TRASHWEB% web.  <BR />
+In some environments, it is desirable to keep them forever as part of the institutional memory.<BR />
+In others, policy may require that deleted items be expunged (permanently removed) at some point.
+<P>
+<!-- Set a minimum age (in days) for selectable  items in the trash.  0 allows selecting any item. -->
+%CALCULATE{$SET(minage,%TRASH{"minage"}%)}%
+%CALCULATE{$SET(mindate,$EVAL($TIME()-($GET(minage)*86400)))}%
+<div class="ecoTrashPolicies">
+*Site Policies* (These can be changed  with the [[%SCRIPTURL{configure}%][configure script]] in the !EcoTrashPlugin subsection of the Extensions section.)
+<p>Only members of the %USERSWEB%.%TRASH{"group"}% can manage the %TRASHWEB% web.
+<p>%IF{"%CALCULATE{$GET(minage)}%=0" then="All deleted items can be selected and expunged.  A minimum age policy can be defined to prevent an item from being expunged prematurely." else="Your site policy specifies that items deleted less than %CALCULATE{$GET(minage)}% days ago can not be selected."}%
+%IF{"%TRASH{"maxage"}%=0" then="<p>No maximum age policy for deleted items is defined.  One can be defined in [[%SCRIPTURL{configure}%][the configure script]] to cause maintenance to expunge older items." else="<P>Your site policy specifies that items deleted more than %TRASH{"maxage"}% days ago will be expunged if maintenance is run."}%
+</div>
+<P>To expunge (permanently delete) topics and/or attachments in this web, select them and click the *Irrevocably delete* button. %ICON{warning}% This action is irreversible.
+<P>You may also restore topics and attachments to their original location, or re-home them if the orginal location is not recorded.
+<p> Although links are provided to view attachments, the webserver is normally configured to deny direct access to deleted attachments.  See the %SYSTEMWEB%.EcoTrashPlugin topic for guidelines.
+<p> *Tabs*: __topics__ were deleted as a whole; __Attachments__ were deleted from topics; __Unclaimed__ are files in =pub/%TRASHWEB%= with no topic.
+<p>Additional information is available in %SYSTEMWEB%.EcoTrashPlugin.
+<sticky>%ENDTWISTY%
+---++!! Contents of %TRASHWEB%
+</span>%TABPANE%
+%TAB{"Topics"}%
+<div id="topics">
+<div>
+%TABLE{sort="on" id="topictable" dataalign="center,left,right,left,left,left,left" footerrows="1"}%
+%SEARCH{"^(?!%TRASH{"protected"}%$).*$" 
+type="regex" scope="topic" web="%TRASHWEB%" order="modified" reverse="off" nonoise="on"
+header="| *Delete* | *Topic* | *Rev* | *Original Name* | *Deleted* | *Deleted by* | *Action* |"
+format="| $percntIF{\"$percntTRASH{\"topicmove\" topic=\"%TRASHWEB%.$topic\" format=\"$mdate\"}$percnt<=%CALCULATE{$GET(mindate)}%\" then='<input type=\"checkbox\" class=\"foswikiCheckbox\" name=\"delete_topic\" value=\"$topic\" title=\"Select this topic for permanent deletion\" />' else='<span name=\"delete_topic\"><img height=\"16\" width=\"16\" alt=\"stop\" src=\"%PUBURL%/%SYSTEMWEB%/DocumentGraphics/stop.png\"></span>'}$percnt | \
+$percntTRASH{\"topicmove\" topic=\"%TRASHWEB%.$topic\" format=\"[[$name][$topic]] | $rev | <nop>$from | \
+<span style=$dollarquotdisplay:none;$dollarquot>$dollarpercntCALC{$FORMATTIME($mdate,$year-$month-$day-$hour-$minute-$second)}$dollarpercnt</span>\
+$dollarpercntCALC{$FORMATTIME($mdate,$fmdate)}$dollarpercnt | \
+[[%USERSWEB%.$mname][$dollarpercntSPACEOUT{$dollarquot$mname$dollarquot}$dollarpercnt]] | $restore |\" }$percnt"
+}%
+|  *<input type="checkbox" title="Select all" checked="checked" onchange="$('[name=\&quot;delete_topic\&quot;]').attr('checked',!this.checked);this.title=(this.checked? 'Select all':'Deselect all');return true;">*  | *Select topics to be permanently deleted* ||||||
+</div>
+<div style="margin-top:20px;" >
+<button type="submit" class="foswikiSubmit" id="submitdeletetopics" name="dodeletetopics" value="1" onclick='if($("[name=\&quot;delete_topic\&quot;]").is(":checked")){  return confirm("This action can not be reversed.\n\nPlease confirm that you want to proceed.");} else {alert("Please select at least one topic."); return false;}'>%ICON{warning}% Irrevocably delete selected topics</button>
+</div>
+</div>
+%ENDTAB%
+%TAB{"Attachments"}%
+<div id="attachments">
+<div>
+%TABLE{sort="on" id="attachtable" dataalign="center,left,right,left,left,left,left,left,left,left" footerrows="1"}%
+| *<small>Delete</small>* | *<small>File</small>* | *<small>Rev</small>* | *<small>Deleted From</small>* | *<small>Original Name</small>* | *<small>Deleted</small>* | *<small>Deleted By</small>* | *<small>Action</small>* | *<small>Attr</small>* | *<small>Comment</small>* |
+%TRASH{"listattachments" format="| $percntIF{\"$mdate<=%CALCULATE{$GET(mindate)}%\" then='<input type=\"checkbox\" class=\"foswikiCheckbox\" name=\"delete_attach\" value=\"$name\" title=\"Select this attachment for permanent deletion\" />' else='<span name=\"delete_attach\"><img height=\"16\" width=\"16\" alt=\"stop\" src=\"%PUBURL%/%SYSTEMWEB%/DocumentGraphics/stop.png\"></span>'}$percnt | [[%PUBURL%/%TRASHWEB%/%TRASH{\"attachtopic\"}%/$name][$name]] | $rev | [[$ftopic][$ftopic]] | !$fname | \
+<span style=\"display:none;\">$percntCALC{$FORMATTIME($mdate,$year-$month-$day-$hour-$minute-$second)}$percnt</span>\
+$percntCALC{$FORMATTIME($mdate,$fmdate)}$percnt | [[%USERSWEB%.$mname][$percntSPACEOUT{\"$mname\"}$percnt]] | $restore | $attr | $comment |$n"
+none="| None found ||||||||||$n"
+footer="|  *<input type=\"checkbox\" title=\"Select all\" checked=\"checked\" onchange=\"$('[name=\&quot;delete_attach\&quot;]').attr('checked',!this.checked);this.title=(this.checked? 'Select all':'Deselect all');return true;\">*  | *Select attachments to be permanently deleted* |||||||||$n"
+}%
+</div>
+<div style="margin-top:20px;" >
+<button type="submit" class="foswikiSubmit" id="submitdeleteattach" name="dodeleteattach" value="1" onclick='if($("[name=\&quot;delete_attach\&quot;]").is(":checked")){  return confirm("This action can not be reversed.\n\nPlease confirm that you want to proceed.");} else {alert("Please select at least one attachment."); return false;}'>%ICON{warning}% Irrevocably delete selected attachments</button>
+</div>
+</div>
+%ENDTAB%
+%TAB{"Unclaimed Files"}%
+<div id="unclaimed">
+<div>
+%TABLE{sort="on" id="unclaimedtable" dataalign="center,left,left,left" footerrows="2"}%
+| *<small>Delete</small>* | *<small>Topic</small>* | *<small>File</small>* | *<small>Last Changed</small>* |
+%TRASH{"listunclaimed" format="| $percntIF{\"$mdate<=%CALCULATE{$GET(mindate)}%\" then='<input type=\"checkbox\" class=\"foswikiCheckbox\" name=\"delete_unclaimed\" value=\"$to\" title=\"Select this unclaimed file for permanent deletion\" />' else='<span name=\"delete_unclaimed\"><img height=\"16\" width=\"16\" alt=\"stop\" src=\"%PUBURL%/%SYSTEMWEB%/DocumentGraphics/stop.png\"></span>'}$percnt | \
+$percntCALC{$SUBSTITUTE($ttopic,^%TRASHWEB%[.],!,,r)}$percnt | [[%PUBURL%/$tpath][$name]] | \
+<span style=\"display:none;\">$percntCALC{$FORMATTIME($date,$year-$month-$day-$hour-$minute-$second)}$percnt</span>\
+$percntCALC{$FORMATTIME($date,$fdate)}$percnt |$n"
+none="| None found ||||$n"
+footer="|  *<input type=\"checkbox\" title=\"Select all\" checked=\"checked\" onchange=\"$('[name=\&quot;delete_unclaimed\&quot;]').attr('checked',!this.checked);this.title=(this.checked? 'Select all':'Deselect all');return true;\">*  | *Select unclaimed files to be permanently deleted* |||$n\
+| | Run maintenance to reclaim these files |||$n"
+}%
+</div>
+<div style="margin-top:20px;" >
+<button type="submit" class="foswikiSubmit" id="submitdeleteunclaimed" name="dodeleteunclaimed" value="1" onclick='if($("[name=\&quot;delete_unclaimed\&quot;]").is(":checked")){  return confirm("This action can not be reversed.\n\nPlease confirm that you want to proceed.");} else {alert("Please select at least one file."); return false;}'>%ICON{warning}% Irrevocably delete selected unclaimed files</button>
+</div>
+</div>
+%ENDTAB%
+%TAB{"Run Maintenance"}%
+<div>
+%TRASHWEB% web maintenance immediately performs the %TRASHWEB% web maintenance that is normally run automatically.
+
+This includes:
+   * Creating topics for any unclaimed files (files directories in =pub/%TRASHWEB%= with no corresponding topic)
+   * Deleting any empty directories in =pub/%TRASHWEB%= with no corresponding topic
+   * %IF{"%TRASH{maxage}%=0" then="Enforcing your site retention policy, which you can establish with [[%SCRIPTURL{configure}%][the configure script]]"
+                             else="Expunging any topics or attachments that are older than your site retention policy of %TRASH{maxage}% days (Set in  [[%SCRIPTURL{configure}%][the configure script]])" }%
+You can run %TRASHWEB% web maintenance in test mode by checking the *Test mode* box below.  This previews the effect of running %TRASHWEB% web maintenance, without changing the content of the %TRASHWEB% web.
+</div>
+<div style="margin-top:20px;" >
+%TABLE{ tableborder="0" tableframe="void" tablerules="none"}%
+| <button type="submit" id="submitmaint" class="foswikiSubmit" name="domaint" value="1" title="Perform maintenance now" onclick='return confirm("This action can not be reversed.\n\nPlease confirm that you want to proceed.");'>%ICON{warning}% Perform maintenance now </button> | <small>%ORANGE%Maintenance may permanently delete files.%ENDCOLOR% <br /> \
+%IF{"%TRASH{maxage}%=0" then="Check and repair web." else="<span title='This date was computed when you visited this page.  More recently deleted items may also be expunged when the process runs.'>$percntICON{warning}$percntItems deleted before %CALC{$FORMATTIME($percntTRASH{\"expiretime\"}$percnt,$wday %TRASH{"expiredate"}%)}% will be expunged.</span>"}%</small> |
+</div>
+%ENDTAB%
+%ENDTABPANE%
+<div id="actionctls" style="margin-top:10px;" >
+<label for="test_mode" id="test_box" title="Display what would happen, but do not delete any files"><input type="checkbox" class="foswikiCheckbox" name="test_mode" id="test_mode" value="1">Test mode</label>
+</div>
+<style type="text/css">
+div.ecoTrashPolicies {
+width:auto;
+padding:5px;
+margin-top:5px;
+margin-bottom:5px;
+background-color:#ebeaec;
+border-style:solid;
+border-width:1px;
+}
+span.ecoTrashInstructions h2 {
+margin-top:0px;
+}
+.ecoTrashStatusBox {
+background-color: #ebeaeb;
+text-color: #000000;
+text-align:center;
+margin:20px;
+padding:5px;
+width:200px;
+border-style:solid;
+border-width:2px;
+}
+</style>
+<script type="text/javascript">
+$(function() { 
+function none(chkboxes,divid,submitid) { 
+if( !$("[name=\""+chkboxes+"\"]").length ) {$("#"+divid).replaceWith("<div class=\"ecoTrashStatusBox\">None found</div>");return 0;}
+if( !$("[name=\""+chkboxes+"\"]:checkbox").length ) { $('#'+submitid).hide(); } return 1;
+}
+var some = none('delete_topic', 'topics', 'submitdeletetopics') | none('delete_attach', 'attachments', 'submitdeleteattach') | none('delete_unclaimed', 'unclaimed', 'submitdeleteunclaimed');
+$("div.patternTopicActions,div#twTopBarButtons").hide();$("div.twTopMenuTab").find("ul li a").filter(function(){return $(this).text().indexOf("Edit")==0}).hide().end().end().
+                                                                              find("ul li ul li a").filter(function(){var t=$(this); return t.text().indexOf("History")==0 ||
+                                                                                                                                            t.text().indexOf("More topic actions")==0 ||
+                                                                                                                                            t.text().indexOf("Raw View")==0}).hide();
+ });
+</script>
+</form></sticky>
+</div>
+<div style="display:none;"><!-- Text conditionally included in Trash.WebHome when EcoTrashPlugin is enabled -->
+%STARTSECTION{"WebHomeText" type="section"}%
+%MAKETEXT{"This is the [_1] web. Here you can find deleted topics (including their attachments); attachments deleted from topics are in the [_2] topic.  
+To undelete any of these items, or to expunge them _(empty the trash)_, visit the ~[~[[_3]~]~[Trash Manager~]~] topic." args="<b><nop>%WEB%</b>,%TRASH{"attachtopic"}%,%WEB%.WebTrashManager"}%
+<p>%IF{"'%TRASH{"maxage"}%'='0'"
+    then="%MAKETEXT{"No maximum age policy for deleted items is defined.  One can be defined in ~[~[[_1]~]~[the configure script~]~]." args="%SCRIPTURL{configure}%"}%"
+    else="%MAKETEXT{"Your site policy specifies that items deleted more than [_1] days ago will be expunged by [_2] maintenance.  
+This can be changed in ~[~[[_3]~]~[the configure script~]~]." args="%TRASH{"maxage"}%,<nop>%WEB%,%SCRIPTURL{configure}%"}%"}%
+%ENDSECTION{"WebHomeText" type="section"}%
+</div>
+
+<!--Main.TimotheLitt - 18 Jan 2014 -->

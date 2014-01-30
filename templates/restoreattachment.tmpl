@@ -1,0 +1,44 @@
+%{ Template for EcoTrashPlugin }%%TMPL:INCLUDE{"rename"}%
+
+
+%TMPL:DEF{"titleaction"}%%MAKETEXT{"(restore attachment)"}% %TMPL:END%
+
+
+%TMPL:DEF{"webaction"}% *%MAKETEXT{"Restore file attachment"}%* %TMPL:END%
+
+%TMPL:DEF{"canceltopicaction"}%<a href="%SCRIPTURLPATH{"view"}%/%TRASHWEB%/WebTrashManager" title='%MAKETEXT{"Back to !TrashManager"}%' %MAKETEXT{"accesskey='c'"}% rel='nofollow'>%MAKETEXT{"&Cancel"}%</a>%TMPL:END%
+
+
+%TMPL:DEF{"pagetitle"}%%MAKETEXT{"Restore attachment"}% [[%ATTACHURL%/%ENCODE{"%FILENAME%"}%][%FILENAME%]]%TMPL:END%
+
+
+%TMPL:DEF{"movewebhelp"}%%TMPL:END%
+
+
+%TMPL:DEF{"namehelp"}%<p>%MAKETEXT{"The new topic chosen must already exist."}%</p>%TMPL:END%
+
+
+%TMPL:DEF{"newweb"}%<p><select class="foswikiSelect" name="newweb" onchange="if (document.rename.newweb.value == 'Trash') { document.rename.newtopic.value = 'TrashAttachment'; }"> %WEBLIST{"<option $marker value=$qname>$name</option>" webs="%TRASHWEB%,public" selection="%NEW_WEB%" separator=" "}%  </select><input type="hidden" name="attachment" value="%FILENAME%" /></p>%TMPL:END%
+
+
+%TMPL:DEF{"towebtitle"}%---+++ %MAKETEXT{"Move attachment to web:"}%%TMPL:END%
+
+
+%TMPL:DEF{"newtopic"}%<p><input name="newtopic" class="foswikiInputField" value="%NEW_TOPIC%" size="36" /><input type="hidden" name="nonwikiword" value="on" /></p>%TMPL:P{"namehelp"}%%TMPL:END%
+
+
+%TMPL:DEF{"notes"}%
+   * %MAKETEXT{"The attachment and any history will be moved from %WEB% to the new topic."}%
+   * %MAKETEXT{"An error page will be shown if either of the topics is locked by another user."}%
+%TMPL:END%
+
+
+%TMPL:DEF{"topicactionbuttons"}%<input type="submit" class="foswikiSubmit" value=' %MAKETEXT{"Move"}% ' /> %MAKETEXT{"or"}% %TMPL:P{"canceltopicaction"}%%TMPL:END%
+
+
+
+%TMPL:DEF{"searchresultsstep"}%%TMPL:END%
+
+
+
+%TMPL:DEF{"updatenote"}%%TMPL:END%

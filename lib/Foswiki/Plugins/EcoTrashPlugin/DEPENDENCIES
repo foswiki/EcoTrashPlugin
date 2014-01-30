@@ -1,0 +1,7 @@
+# Dependencies for EcoTrashPlugin
+Foswiki::Plugins,>=2.0,perl,Foswiki
+Foswiki::Plugins::SpreadSheetPlugin,>=2013-10-10,perl,Required by GUI
+Foswiki::Plugins::TablePlugin,>=0,perl,Required
+Foswiki::Plugins::JQueryPlugin,>=0,perl,Required
+File::Find,>=1.10,cpan,Required - Part of perl distribution
+CGI,>=3.55,cpan,Required
