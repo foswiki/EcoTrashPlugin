@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" date="1390792588" format="1.1" version="$Rev$"}%
+%META:TOPICINFO{author="ProjectContributor" date="1407719141" format="1.1" version="1"}%
 <!-- Copyright 2014 TImothe Litt.  See EcoTrashPlugin for license -->
 %IF{"context EcoTrashPluginEnabled" then="<div>" else="
 ---+ %TRASHWEB% Manager
